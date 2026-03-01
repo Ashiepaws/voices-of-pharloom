@@ -27,6 +27,7 @@ public partial class Plugin : BaseUnityPlugin
     private void Awake()
     {
         Logger = base.Logger;
+        VoAConfig.Init(Config);
 
         var harmony = new Harmony(Id);
         StartCoroutine(AwakeDelayed(harmony));
@@ -67,6 +68,29 @@ public partial class Plugin : BaseUnityPlugin
     {
         yield return null;
         harmony.PatchAll();
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.ParseTextForDialogueLines))]
+    public static void ParseTextForDialogueLinesPatch(DialogueBox __instance, ref List<DialogueBox.DialogueLine> __result)
+    {
+        if (!VoAConfig.ShowDialogueKeys || string.IsNullOrEmpty(CurrentDialogueKey))
+            return;
+        for (int i = 0; i < __result.Count; i++)
+        {
+            var line = __result[i];
+            line.Text = $"[{CurrentDialogueKey}_{i}] {line.Text}";
+            __result[i] = line;
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.EndConversation))]
+    public static void EndConversationPatch()
+    {
+        CurrentDialogueKey = "";
+        CurrentDialogueIndex = 0;
+        DialogueAudioSource.Stop();
     }
 
     [HarmonyPrefix]
