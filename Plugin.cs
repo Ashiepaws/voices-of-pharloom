@@ -75,6 +75,13 @@ public partial class Plugin : BaseUnityPlugin
     {
         PlayDialogueAudio($"{CurrentDialogueKey}_{CurrentDialogueIndex++}");
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(NPCSpeakingAudio), nameof(NPCSpeakingAudio.Speak), new Type[] { typeof(DialogueBox.DialogueLine) })]
+    public static bool SpeakPatch(DialogueBox.DialogueLine line)
+    {
+        return LoadClipFromKey($"{CurrentDialogueKey}_{CurrentDialogueIndex}") == null; // Only allow original audio if no custom clip is found
+    }
     
     [HarmonyPrefix]
     [HarmonyPatch(typeof(RunDialogueBase), nameof(PlayMakerNPC.StartDialogue), [ typeof(PlayMakerNPC) ])]
@@ -98,6 +105,15 @@ public partial class Plugin : BaseUnityPlugin
         if (string.IsNullOrEmpty(dialogueKey))
             return;
 
+        var clip = LoadClipFromKey(dialogueKey);
+        if (clip != null) {
+            DialogueAudioSource.clip = clip;
+            DialogueAudioSource.Play();
+        }
+    }
+
+    private static AudioClip? LoadClipFromKey(string dialogueKey)
+    {
         foreach (var pack in PluginPacks.Where(p => p.Enabled && p.Languages.Contains(Language.CurrentLanguage().ToString())))
         {
             var audioPath = GetAudioPath(pack, dialogueKey);
@@ -105,13 +121,10 @@ public partial class Plugin : BaseUnityPlugin
             {
                 var clip = LoadAudioClip(audioPath);
                 if (clip != null)
-                {
-                    DialogueAudioSource.clip = clip;
-                    DialogueAudioSource.Play();
-                    return;
-                }
+                    return clip;
             }
         }
+        return null;
     }
 
     private static AudioClip? LoadAudioClip(string path)
