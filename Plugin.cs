@@ -68,6 +68,9 @@ public partial class Plugin : BaseUnityPlugin
     {
         yield return null;
         harmony.PatchAll();
+
+        if (VoAConfig.DumpAllText)
+            TextDumper.DumpAllText();
     }
 
     [HarmonyPostfix]
