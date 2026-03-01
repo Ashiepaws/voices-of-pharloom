@@ -82,6 +82,13 @@ public partial class Plugin : BaseUnityPlugin
     {
         return LoadClipFromKey($"{CurrentDialogueKey}_{CurrentDialogueIndex}") == null; // Only allow original audio if no custom clip is found
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(NPCSpeakingAudio), nameof(NPCSpeakingAudio.PlayVoice), new Type[] { typeof(RandomAudioClipTable), typeof(Vector3), typeof(AudioSource), typeof(NPCSpeakingAudio) })]
+    public static bool PlayVoicePatch(RandomAudioClipTable audioTable, Vector3 position, AudioSource playOnSource, NPCSpeakingAudio runner)
+    {
+        return LoadClipFromKey($"{CurrentDialogueKey}_{CurrentDialogueIndex}") == null; // Only allow original audio if no custom clip is found
+    }
     
     [HarmonyPrefix]
     [HarmonyPatch(typeof(RunDialogueBase), nameof(PlayMakerNPC.StartDialogue), [ typeof(PlayMakerNPC) ])]
