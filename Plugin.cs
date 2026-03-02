@@ -27,18 +27,18 @@ public partial class Plugin : BaseUnityPlugin
     private void Awake()
     {
         Logger = base.Logger;
-        VoAConfig.Init(Config);
+        VoPConfig.Init(Config);
 
         var harmony = new Harmony(Id);
         StartCoroutine(AwakeDelayed(harmony));
 
-        Directory.GetDirectories(Paths.PluginPath, "VoA", SearchOption.AllDirectories).ToList().ForEach(dir =>
+        Directory.GetDirectories(Paths.PluginPath, "VoP", SearchOption.AllDirectories).ToList().ForEach(dir =>
         {
             var packData = ParsePackData(dir);
             PluginPacks.Add(packData);
         });
 
-        DialogueAudioSource = new GameObject("VoA_DialogueAudioSource").AddComponent<AudioSource>();
+        DialogueAudioSource = new GameObject("VoP_DialogueAudioSource").AddComponent<AudioSource>();
         DialogueAudioSource.spatialBlend = 0f;
         DontDestroyOnLoad(DialogueAudioSource.gameObject);
 
@@ -69,7 +69,7 @@ public partial class Plugin : BaseUnityPlugin
         yield return null;
         harmony.PatchAll();
 
-        if (VoAConfig.DumpAllText)
+        if (VoPConfig.DumpAllText)
             TextDumper.DumpAllText();
     }
 
@@ -77,7 +77,7 @@ public partial class Plugin : BaseUnityPlugin
     [HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.ParseTextForDialogueLines))]
     public static void ParseTextForDialogueLinesPatch(DialogueBox __instance, ref List<DialogueBox.DialogueLine> __result)
     {
-        if (!VoAConfig.ShowDialogueKeys || string.IsNullOrEmpty(CurrentDialogueKey))
+        if (!VoPConfig.ShowDialogueKeys || string.IsNullOrEmpty(CurrentDialogueKey))
             return;
         for (int i = 0; i < __result.Count; i++)
         {
@@ -174,7 +174,7 @@ public partial class Plugin : BaseUnityPlugin
         }
 
         AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
-        clip.name = $"VoA_{Path.GetFileNameWithoutExtension(path)}";
+        clip.name = $"VoP_{Path.GetFileNameWithoutExtension(path)}";
         return clip;
     }
 

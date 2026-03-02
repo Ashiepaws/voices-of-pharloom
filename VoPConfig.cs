@@ -2,7 +2,7 @@ using BepInEx.Configuration;
 
 namespace VoicesOfPharloom;
 
-public class VoAConfig
+public class VoPConfig
 {
     private static ConfigEntry<bool> _ShowDialogueKeys;
     public static bool ShowDialogueKeys => _ShowDialogueKeys.Value;

@@ -7,7 +7,7 @@ namespace VoicesOfPharloom;
 
 public static class TextDumper
 {
-    public static string TextDumpPath { get { return Path.Combine(BepInEx.Paths.GameRootPath, "VoA_TextDump"); } }
+    public static string TextDumpPath { get { return Path.Combine(BepInEx.Paths.GameRootPath, "VoP_TextDump"); } }
     
     public static void DumpAllText()
     {
